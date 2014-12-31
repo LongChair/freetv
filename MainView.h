@@ -6,13 +6,13 @@
 #include <QMap>
 
 #include "MainView.h"
-
+#include "TvPlayer.h"
+#include "Channel.h"
 
 #ifdef TARGET_RPI
 #include "DispmanxImage.h"
 #endif
 
-class Channel;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class MainView : public QDeclarativeView
@@ -26,22 +26,13 @@ public slots:
 
 private:
   QNetworkAccessManager m_manager;
-  QMap<QString, Channel*> m_channels;
+
+
+  TVPlayer m_tvplayer;
 
 #ifdef TARGET_RPI
   DispmanxImage *m_image;
 #endif
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-class Channel
-{
-public:
-  Channel(int id, QString name, QString url) : m_id(id), m_name(name), m_url(url) {}
-
-  int m_id;
-  QString m_name;
-  QString m_url;
 };
 
 

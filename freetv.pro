@@ -7,7 +7,7 @@
 QT       += core
 greaterThan(QT_MAJOR_VERSION, 4): QT += network qml declarative
 
-DEFINES += TARGET_RPI
+#DEFINES += TARGET_RPI
 
 TARGET = freetv
 target.path = /home/pi
@@ -17,18 +17,19 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-    MainView.cpp
+    MainView.cpp \
+    TvPlayer.cpp
 
-TARGET_RPI
-{
+TARGET_RPI {
     SOURCES += DispmanxImage.cpp
 }
 
 HEADERS  += \
-    MainView.h
+    MainView.h \
+    TvPlayer.h \
+    Channel.h
 
-TARGET_RPI
-{
+TARGET_RPI {
     SOURCES += DispmanxImage.h
 }
 
@@ -39,8 +40,7 @@ DISTFILES +=
 RESOURCES += \
     ressource.qrc
 
-TARGET_RPI
-{
+TARGET_RPI {
     win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/lib/release/ -lbcm_host
     else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/lib/debug/ -lbcm_host
     else:unix: LIBS += -L$$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/lib/ -lbcm_host

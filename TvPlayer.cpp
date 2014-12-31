@@ -1,0 +1,16 @@
+#include "TvPlayer.h"
+#include <QDebug>
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void TVPlayer::play(int id)
+{
+    //qDebug() << "Play ! for " << id;
+    QString channelName = m_channels[id]->m_name;
+    qDebug() << "Play ! for " << channelName;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////7
+int TVPlayer::canal(int id)
+{
+    return m_channels.at(id)->m_id;
+}
