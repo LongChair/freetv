@@ -1,11 +1,14 @@
-#include "mainwindow.h"
 #include <QApplication>
+
+#include "MainView.h"
 
 int main(int argc, char *argv[])
 {
   QApplication a(argc, argv);
-  MainWindow w;
-  w.showFullScreen();
+
+  MainView view;
+  view.setSource(QUrl("qrc:/view.qml"));
+  view.show();
 
   return a.exec();
 }

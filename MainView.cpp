@@ -1,54 +1,41 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include <QFile>
-#include <QDebug>
+#include "MainView.h"
+
 #include <QNetworkRequest>
-#include <QTextStream>
 #include <QNetworkReply>
-#include <QSurfaceFormat>
-#include <QQmlEngine>
-#include <QQmlContext>
+#include <QDeclarativeContext>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent) {
-
-//  setWindowFlags(Qt::FramelessWindowHint);
-//  setAttribute(Qt::WA_TranslucentBackground);
-//  setAttribute(Qt::WA_QuitOnClose);
-//  setStyleSheet("background: transparent");
-
-  m_view = new QQuickWidget(this);
-  setCentralWidget(m_view);
-
-//  m_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
-//  m_view->setWindowFlags(Qt::FramelessWindowHint);
-//  m_view->setAttribute(Qt::WA_TranslucentBackground);
-
-//  QSurfaceFormat format;
-//  format.setAlphaBufferSize(8);
-//  m_view->setFormat(format);
-//  m_view->setClearColor(QColor(Qt::transparent));
-
-  //m_view->setClearColor(QColor(127,127,127,127));
-
+MainView::MainView(QWidget *parent) : QDeclarativeView(parent)
+{
   // start grabbing the channel list
   QUrl url("http://mafreebox.freebox.fr/freeboxtv/playlist.m3u");
   QNetworkRequest request(url);
 
-
   QNetworkReply *reply = m_manager.get(request);
 
-  connect(&m_manager, SIGNAL(finished(QNetworkReply*)), this,
-              SLOT(channelListRetrieved(QNetworkReply*)));
+  connect(&m_manager, &QNetworkAccessManager::finished, this,
+              &MainView::channelListRetrieved);
 
+#ifdef TARGET_RPI
+  m_image = new DispmanxImage(1920, 1080);
+  m_image->create();
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-MainWindow::~MainWindow() {  }
+MainView::~MainView()
+{
+#ifdef TARGET_RPI
+  if (m_image)
+  {
+    delete m_image;
+    m_image = NULL;
+  }
+#endif
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::channelListRetrieved(QNetworkReply* reply)
+void MainView::channelListRetrieved(QNetworkReply* reply)
 {
   // check if we have an error
   if (reply->error())
@@ -72,7 +59,6 @@ void MainWindow::channelListRetrieved(QNetworkReply* reply)
   QString line;
   int channelID;
   QString channelName;
-  QString channelUrl;
 
   do
   {
@@ -100,16 +86,15 @@ void MainWindow::channelListRetrieved(QNetworkReply* reply)
   } while (!line.isEmpty());
 
   qDebug() << "We found" << m_channels.size() << "channels.";
+
+  // Now build the Channel list for qml
   QStringList *list = new QStringList();
   foreach (Channel *C, m_channels)
   {
-    //m_listWidget->addItem(QString("%1 - %2").arg(C->m_id, 5).arg(C->m_name));
-    list->append(C->m_name);
+    list->append(QString("%1 - %2").arg(C->m_id, 5).arg(C->m_name));
   }
 
-  QQmlContext *ctxt = m_view->engine()->rootContext();
-  ctxt->setContextProperty("channelModel", QVariant::fromValue(*list));
-
-  m_view->setSource(QUrl("qrc:/view.qml"));
+  rootContext()->setContextProperty("channelModel", QVariant::fromValue(*list));
 
 }
+

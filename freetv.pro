@@ -4,9 +4,10 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core
+greaterThan(QT_MAJOR_VERSION, 4): QT += network qml declarative
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets network core quickwidgets qml
+DEFINES += TARGET_RPI
 
 TARGET = freetv
 target.path = /home/pi
@@ -16,9 +17,20 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+    MainView.cpp
 
-HEADERS  += mainwindow.h
+TARGET_RPI
+{
+    SOURCES += DispmanxImage.cpp
+}
+
+HEADERS  += \
+    MainView.h
+
+TARGET_RPI
+{
+    SOURCES += DispmanxImage.h
+}
 
 FORMS    +=
 
@@ -26,3 +38,14 @@ DISTFILES +=
 
 RESOURCES += \
     ressource.qrc
+
+TARGET_RPI
+{
+    win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/lib/release/ -lbcm_host
+    else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/lib/debug/ -lbcm_host
+    else:unix: LIBS += -L$$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/lib/ -lbcm_host
+
+    INCLUDEPATH += $$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/include
+    DEPENDPATH += $$PWD/../../../mnt/rasp-pi-rootfs/opt/vc/include
+}
+
